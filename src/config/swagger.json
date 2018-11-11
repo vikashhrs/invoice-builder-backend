@@ -1,0 +1,78 @@
+{
+    "swagger": "2.0",
+    "title": "Invoice Builder Api Documentation",
+    "description": "Swagger API Documention for invoice builder app.",
+    "termsOfService": "http://example.com/terms/",
+    "license": {
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0.0",
+    "host": "localhost:3000",
+    "basePath": "/api",
+    "tags": [{
+        "name": "Invoices",
+        "description": "API for INvoice"
+    }],
+    "schemes": ["http"],
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "paths": {
+        "/invoices": {
+            "post": {
+                "tags": ["invoices"],
+                "description": "create new invoice",
+                "parameters": [{
+                    "name": "invoice",
+                    "description": "Invoice to be created",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#definitions/Invoice"
+                    }
+                }],
+                "produces": ["application/json"],
+                "responses": {
+                    "200": {
+                        "description": "new invoice is created",
+                        "schema": {
+                            "$ref": "#definition/Invoice"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Invoice": {
+            "required": ["item", "date", "due", "qty"],
+            "properties": {
+                "_id": {
+                    "type": "string",
+                    "uniqueItems": true
+                },
+                "item": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "date"
+                },
+                "due": {
+                    "type": "date"
+                },
+                "qty": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "rate": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "tax": {
+                    "type": "integer",
+                    "format": "int32"
+                }
+            }
+        }
+    }
+}

@@ -1,16 +1,36 @@
 import joi from 'joi';
-import Invoice from '../models/invoice.model'
+import Invoice from './invoice.model'
+import { join } from 'path';
 
 export default {
+
     findAll(req, res, next) {
-        Invoice.find()
-            .then(invoices => res.json(invoices))
+        const { page = 1, perpage = 10, filter, sortField, sortDirection } = req.query;
+        const options = {
+            page: parseInt(page, 10),
+            limit: parseInt(perpage, 10),
+            populate: 'client'
+        }
+        const query = {};
+        if (filter) {
+            query.item = {
+                $regex: filter
+            };
+        }
+        if (sortField && sortDirection) {
+            options.sort = {
+                [sortField]: sortDirection
+            }
+        }
+        Invoice.paginate(query, options)
+            .then(invoices => {
+                res.json(invoices)
+            })
             .catch(error => {
                 res.status = 500;
                 res.json(error)
             })
     },
-
     findOne(req, res, next) {
         let { _id } = req.params;
         const schema = joi.object().keys({
@@ -33,14 +53,13 @@ export default {
                 res.status(500).json(error);
             })
     },
-
-    createInvoice(req, res, next) {
-        let { item, qty, date, due, tax, rate } = req.body;
+    create(req, res, next) {
         const schema = joi.object().keys({
             item: joi.string().required(),
             date: joi.date().required(),
             due: joi.date().required(),
             qty: joi.number().integer().required(),
+            client: joi.string().required(),
             tax: joi.optional(),
             rate: joi.optional()
         });
@@ -57,7 +76,7 @@ export default {
             })
     },
 
-    updateInvoice(req, res, next) {
+    update(req, res, next) {
         let { _id } = req.params;
         let { item, qty, date, due, tax, rate } = req.body;
         const schema = joi.object().keys({
@@ -66,7 +85,8 @@ export default {
             due: joi.date().optional(),
             qty: joi.number().integer().optional(),
             tax: joi.number().optional(),
-            rate: joi.number().optional()
+            rate: joi.number().optional(),
+            client: joi.string().optional()
         });
         const { error, value } = joi.validate(req.body, schema);
         if (error && error.details) {
@@ -83,8 +103,7 @@ export default {
             })
 
     },
-
-    deleteInvoice(req, res, next) {
+    delete(req, res, next) {
         let { _id } = req.params;
         const schema = joi.object().keys({
             _id: joi.string().required()

@@ -1,15 +1,16 @@
 import express from 'express';
+import passport from 'passport';
 import clientController from './client.controller';
 
 export const clientRouter = express.Router();
 
 clientRouter
     .route('/')
-    .get(clientController.findAll)
-    .post(clientController.create);
+    .get(passport.authenticate('jwt', { session: false }), clientController.findAll)
+    .post(passport.authenticate('jwt', { session: false }), clientController.create);
 
 clientRouter
     .route('/:_id')
-    .get(clientController.findOne)
-    .delete(clientController.delete)
-    .put(clientController.update);
+    .get(passport.authenticate('jwt', { session: false }), clientController.findOne)
+    .delete(passport.authenticate('jwt', { session: false }), clientController.delete)
+    .put(passport.authenticate('jwt', { session: false }), clientController.update);

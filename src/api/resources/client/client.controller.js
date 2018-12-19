@@ -16,7 +16,9 @@ export default {
     async findAll(req, res) {
         try {
             const clients = await Client.find();
-            res.json(clients);
+            setTimeout(() => {
+                res.json(clients);
+            }, 2000);
         } catch (error) {
             res.status(500).json(error)
         }

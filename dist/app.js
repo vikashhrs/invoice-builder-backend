@@ -8,38 +8,24 @@ var _mongoose = require('mongoose');
 
 var _mongoose2 = _interopRequireDefault(_mongoose);
 
-var _bodyParser = require('body-parser');
+var _index = require('./api/index');
 
-var _bodyParser2 = _interopRequireDefault(_bodyParser);
+var _development = require('./config/env/development');
 
-var _morgan = require('morgan');
-
-var _morgan2 = _interopRequireDefault(_morgan);
-
-var _fs = require('fs');
-
-var _fs2 = _interopRequireDefault(_fs);
-
-var _path = require('path');
-
-var _path2 = _interopRequireDefault(_path);
-
-var _routes = require('./config/routes');
+var _global = require('./api/middlewares/global.middleware');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 _mongoose2.default.Promise = global.Promise;
-_mongoose2.default.connect('mongodb://localhost:27017/invoicebuilder');
+_mongoose2.default.connect('mongodb://localhost:27017/' + _development.devConfig.database, { useNewUrlParser: true });
+
 var app = (0, _express2.default)();
-var PORT = 3000;
+var PORT = _development.devConfig.port;
 
-var accessLogStream = _fs2.default.createWriteStream(_path2.default.join(__dirname, 'access.log'), { flags: 'a' });
+//register global middleware
+(0, _global.setGlobalMiddleware)(app);
 
-app.use((0, _morgan2.default)('combined', { stream: accessLogStream }));
-
-app.use(_bodyParser2.default.json());
-app.use(_express2.default.urlencoded());
-app.use('/api', _routes.router);
+app.use('/api', _index.restRouter);
 app.use(function (req, res, next) {
     var error = new Error('Not Found!');
     error.message = 'Invalid Route!';
